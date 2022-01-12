@@ -1,0 +1,32 @@
+{
+  "name": "dynalist-api",
+  "version": "1.0.0",
+  "description": "A wrapper for the dynalist api to make common tasks easier.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://nzmattgrant@bitbucket.org/nzmattgrant/dynalistapi.git"
+  },
+  "keywords": [
+    "dynalist",
+    "api",
+    "wrapper"
+  ],
+  "author": "Matt Grant",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://bitbucket.org/nzmattgrant/dynalistapi/issues"
+  },
+  "homepage": "https://bitbucket.org/nzmattgrant/dynalistapi#readme",
+  "devDependencies": {
+    "@types/request": "^2.48.8",
+    "typescript": "^4.5.4"
+  },
+  "dependencies": {
+    "request": "^2.88.2"
+  }
+}
