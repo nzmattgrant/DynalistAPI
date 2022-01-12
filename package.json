@@ -1,6 +1,6 @@
 {
   "name": "dynalist-api",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A wrapper for the dynalist api to make common tasks easier.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
