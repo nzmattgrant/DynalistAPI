@@ -1,6 +1,6 @@
 import request from 'request';
 
-export default class DyanlistApi{
+export default class DynalistApi{
 
     constructor(private dynalistApiKey: string, private requestDelay: number = 1000){}
 
