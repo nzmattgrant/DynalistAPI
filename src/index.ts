@@ -250,4 +250,28 @@ export class DynalistApi{
         return document.nodes.filter((n: any) => n.content.includes(filterString));
     }
 
+    public async sendToInbox(content: string, index=0, additionalParameters?: SendToInboxParameters){
+        let parameters = {
+            token: this.dynalistApiKey,
+            index: index,
+            content: content
+        } as SendToInboxParameters;
+
+        if(additionalParameters){
+            parameters = {...additionalParameters, ...parameters} as SendToInboxParameters;
+        }
+        return await this.getPostResponse('https://dynalist.io/api/v1/inbox/add', additionalParameters as object);
+    }
 }
+
+export interface SendToInboxParameters{
+    token?: string,
+    content?: string,
+    index?: number,
+    note?: string, 
+    checked?: string, 
+    checkbox?: string, 
+    heading?: string,
+    color?: string
+}
+
