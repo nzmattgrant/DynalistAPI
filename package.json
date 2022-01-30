@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://nzmattgrant@bitbucket.org/nzmattgrant/dynalistapi.git"
+    "url": "git+https://github.com/nzmattgrant/DynalistAPI.git"
   },
   "keywords": [
     "dynalist",
@@ -19,9 +19,9 @@
   "author": "Matt Grant",
   "license": "MIT",
   "bugs": {
-    "url": "https://bitbucket.org/nzmattgrant/dynalistapi/issues"
+    "url": "https://github.com/nzmattgrant/DynalistAPI/issues"
   },
-  "homepage": "https://bitbucket.org/nzmattgrant/dynalistapi#readme",
+  "homepage": "https://github.com/nzmattgrant/DynalistAPI/#readme",
   "devDependencies": {
     "@types/request": "^2.48.8",
     "typescript": "^4.5.4"
