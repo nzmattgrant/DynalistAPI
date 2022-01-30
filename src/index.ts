@@ -1,4 +1,5 @@
 import request from 'request';
+import {SendToInboxParameters} from './types'
 
 export class DynalistApi{
 
@@ -260,18 +261,12 @@ export class DynalistApi{
         if(additionalParameters){
             parameters = {...additionalParameters, ...parameters} as SendToInboxParameters;
         }
-        return await this.getPostResponse('https://dynalist.io/api/v1/inbox/add', additionalParameters as object);
+        return await this.getPostResponse('https://dynalist.io/api/v1/inbox/add', parameters as object);
+    }
+
+    public async listFiles(){
+        return await this.getPostResponse('https://dynalist.io/api/v1/file/list', {token: this.dynalistApiKey});
     }
 }
 
-export interface SendToInboxParameters{
-    token?: string,
-    content?: string,
-    index?: number,
-    note?: string, 
-    checked?: string, 
-    checkbox?: string, 
-    heading?: string,
-    color?: string
-}
 
