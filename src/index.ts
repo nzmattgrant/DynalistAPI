@@ -1,15 +1,16 @@
 import request from 'request';
 import {SendToInboxParameters} from './types'
+import { Document } from './document';
 
 export class DynalistApi{
 
-    constructor(private dynalistApiKey: string, private requestDelay: number = 1000){}
+    constructor(public dynalistApiKey: string, public requestDelay: number = 1000){}
 
     private delay(ms: number){
         return new Promise(resolve => setTimeout(resolve, ms));
     }
     
-    private async getPostResponse(url: string, json: object){
+    public async getPostResponse(url: string, json: object){
         await this.delay(this.requestDelay);//rate limited on requests (one every second);
     
         return new Promise((resolve, reject) => {
@@ -44,7 +45,7 @@ export class DynalistApi{
                 token: this.dynalistApiKey,
                 file_id: id
             });
-        return document;
+        return document as any;
     }
     
     public getSubTreesOrNull(item: any, nodes: any[], includeItemTest = (_: any) => true) {
@@ -179,6 +180,8 @@ export class DynalistApi{
         const deleteResult = await this.updateDocument(sourceDocumentId, deleteChanges);
         return [insertResult, deleteResult];
     }
+
+    //todo: move children 
     
     public async moveNodes(nodes: any[], sourceDocumentId: string, toMoveUnderNodeId: string, includeChecked = true){
     
@@ -266,6 +269,12 @@ export class DynalistApi{
 
     public async listFiles(){
         return await this.getPostResponse('https://dynalist.io/api/v1/file/list', {token: this.dynalistApiKey});
+    }
+
+    public async getDocument2(id: string): Promise<Document> {
+        const document = new Document(id, this);
+        await document.loadCurrentData();
+        return document;
     }
 }
 
