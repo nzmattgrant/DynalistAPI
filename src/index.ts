@@ -39,7 +39,7 @@ export class DynalistApi{
             });
     }
     
-    public async getDocument(id: string) {
+    public async getDynalistDocument(id: string) {
         const document = await this.getPostResponse('https://dynalist.io/api/v1/doc/read',
             {
                 token: this.dynalistApiKey,
@@ -271,7 +271,7 @@ export class DynalistApi{
         return await this.getPostResponse('https://dynalist.io/api/v1/file/list', {token: this.dynalistApiKey});
     }
 
-    public async getDocument2(id: string): Promise<Document> {
+    public async getDocument(id: string): Promise<Document> {
         const document = new Document(id, this);
         await document.loadCurrentData();
         return document;

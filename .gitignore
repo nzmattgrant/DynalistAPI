@@ -48,5 +48,5 @@ Thumbs.db
 *.mov
 *.wmv
 
-src/api.test.js
+src/config.json
 

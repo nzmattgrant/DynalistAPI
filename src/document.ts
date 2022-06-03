@@ -30,20 +30,22 @@ export class Document implements DynalistDocument {
         this.nodes = document.nodes;        
     }
 
-    public async getNodeById(id: string) : Promise<Node | null> {
+    public async getNodeById(id: string, reloadData = false) : Promise<Node | null> {
         if(!this.nodes.find(n => n.id === id)){
             return null;
         }
         const node = new Node(id, this, this.api);
-        await node.loadCurrentData();
+        if(reloadData){
+            await node.loadCurrentData();
+        }
         return node;
     }
 
-    public async getNodeByQuery(query: (node: DynalistNode) => boolean) : Promise<Node | null> {
+    public async getNodeByQuery(query: (node: DynalistNode) => boolean, reloadData = false) : Promise<Node | null> {
         const node = this.nodes.find(query);
         if(!node){
             return null;
         }
-        return await this.getNodeById(node.id);
+        return await this.getNodeById(node.id, reloadData);
     }
 }
