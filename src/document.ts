@@ -30,6 +30,11 @@ export class Document implements DynalistDocument {
         this.nodes = document.nodes;        
     }
 
+    public async deleteNode(node: Node) {
+        await this.api.deleteNodes(this.id, [node]);
+        this.nodes = this.nodes.filter(n => n.id !== node.id);
+    }
+
     public async getNodeById(id: string, reloadData = false) : Promise<Node | null> {
         if(!this.nodes.find(n => n.id === id)){
             return null;

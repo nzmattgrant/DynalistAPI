@@ -9,6 +9,27 @@ export interface SendToInboxParameters {
     color?: string
 }
 
+export interface CreateNodeParameters {
+    action: string;
+    type: string;
+    parent_id: string;
+    index: number;
+    title?: string;
+}
+
+export interface EditNodeParameters {
+    action: string;
+    type: string;
+    file_id: string;
+    title: string;
+}
+
+export interface DocumentUpdateResponse {
+    _code: string; // succeeded, an error code will be returned otherwise
+    _msg: string;
+    new_node_ids: string[]
+}
+
 export interface DynalistNode {
     id: string;
     content: string;

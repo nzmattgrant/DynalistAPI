@@ -1,6 +1,7 @@
 import request from 'request';
-import {SendToInboxParameters} from './types'
+import {DocumentUpdateResponse, SendToInboxParameters, DynalistDocument, DynalistNode} from './types'
 import { Document } from './document';
+import {Node} from './node';
 
 export class DynalistApi{
 
@@ -30,13 +31,13 @@ export class DynalistApi{
         });
     }
     
-    public async updateDocument(documentId: string, changes: object){
+    public async updateDocument(documentId: string, changes: object): Promise<DocumentUpdateResponse> {
         return await this.getPostResponse('https://dynalist.io/api/v1/doc/edit',
             {
                 token: this.dynalistApiKey,
                 file_id: documentId,
                 changes: changes
-            });
+            }) as DocumentUpdateResponse;
     }
     
     public async getDynalistDocument(id: string) {
@@ -206,7 +207,6 @@ export class DynalistApi{
             changes.push(change);
             positionIndex = positionIndex + 1;
         });
-        console.log(changes);
     
         await this.updateDocument(sourceDocumentId, changes);
     }
@@ -216,7 +216,6 @@ export class DynalistApi{
     
         var positionIndex = 0;
         nodeIds.forEach(nodeId => {
-            console.log(nodeId);
             changes.push({
                 "action": "move",
                 "node_id": nodeId,
@@ -241,7 +240,7 @@ export class DynalistApi{
         await this.updateDocument(documentId, changes);
     }
     
-    public async createNewEntry(fileId: string, parentId: string, content: string, index = 0){
+    public async createNewEntry(fileId: string, parentId: string, content: string, index = 0): Promise<DocumentUpdateResponse>{
         return await this.updateDocument(fileId, [{
             "action": "insert",
             "parent_id": parentId,
@@ -275,6 +274,10 @@ export class DynalistApi{
         const document = new Document(id, this);
         await document.loadCurrentData();
         return document;
+    }
+
+    public async deleteNode(node: Node){
+        await node.delete();
     }
 }
 
