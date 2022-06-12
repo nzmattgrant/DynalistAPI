@@ -3,7 +3,7 @@ const config = require('./config.json');
 
 const documentId = config.testDocumentId;
 
-jest.setTimeout(10000);
+jest.setTimeout(50000);
 
 const node1Name = "test_node_1";
 const node2Name = "test_node_2";
@@ -67,12 +67,12 @@ const deleteStandardSubtrees = async () => {
   await api.deleteNodes(document.id, [node1, node2]);
 };
 
-beforeAll(() => {
-  createStandardSubtrees();
+beforeAll(async () => {
+  await createStandardSubtrees();
 });
 
-afterAll(() => {
-  deleteStandardSubtrees();
+afterAll(async () => {
+  await deleteStandardSubtrees();
 });
 
 test('expect document to be loaded', async () => {
@@ -115,12 +115,11 @@ test('expect node to be moved', async () => {
   const api = new DynalistApi(config.testApiKey);
   const document = await api.getDocument(documentId);
   const node1 = await document.getNodeByQuery(n => n.content === node1Name);
-  let node2 = node1.children.find(n => n.content === node2Name);
-  expect(!!node2).toBe(false);
-  node2 = await document.getNodeByQuery(n => n.content === node2Name);
+  let node2 = await document.getNodeByQuery(n => n.content === node2Name);
   expect(!!node2).toBe(true);
   await node1.moveNodeUnder(node2);
-  await node1.loadCurrentData();
-  node2 = node1.children.find(n => n.content === node2Name);
+  node2 = await document.getNodeByQuery(n => n.content === node2Name);
   expect(!!node2).toBe(true);
+  await node1.loadCurrentData();
+  expect(node1.children.includes(node2.id)).toBe(true);
 });
