@@ -1,6 +1,6 @@
 import { DynalistApi } from './index';
 import { Node } from './node';
-import { DynalistDocument, DynalistNode } from './types';
+import { DynalistDocument, DynalistNode, DynalistNodeTree } from './types';
 
 export class Document implements DynalistDocument {
 
@@ -52,5 +52,9 @@ export class Document implements DynalistDocument {
             return null;
         }
         return await this.getNodeById(node.id, reloadData);
+    }
+
+    public async createNodeTree(nodeTree: DynalistNodeTree){
+        await this.api.copySubTrees([nodeTree], 'root', this.id, true);
     }
 }

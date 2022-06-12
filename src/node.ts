@@ -13,6 +13,7 @@ export class Node implements DynalistNode {
   public created: number = -1;
   public modified: number = -1;
   public children: string[] = [];
+  public checked: boolean = false;
 
   constructor(id: string, document: Document, api: DynalistApi) {
     this.id = id;
@@ -27,6 +28,7 @@ export class Node implements DynalistNode {
     this.created = -1;
     this.modified = -1;
     this.children = [];
+    this.checked = false;
   }
 
   public async loadCurrentData() {
@@ -40,6 +42,7 @@ export class Node implements DynalistNode {
     this.created = dynalistNode.created;
     this.modified = dynalistNode.modified;
     this.children = dynalistNode.children;
+    this.checked = dynalistNode.checked;
   }
 
   private readDataFromDocument() {
@@ -67,11 +70,32 @@ export class Node implements DynalistNode {
     }
   }
 
-  public async moveNodeUnder(node: Node) {}
+  public async moveNodeUnder(node: Node): Promise<void> {
+    if(this.document.id === node.document.id){
+      await this.api.moveNodes([node], this.document.id, this.id);
+      return;
+    }
+    const subtrees = await this.api.getSubTreesOrNull(this, this.document.nodes) as any;
+    if (subtrees) {
+      await this.api.copySubTrees([subtrees], node.id, node.document.id, true);
+      await this.api.deleteNodes(this.document.id, [subtrees]);
+    }
+    return;
+  }
 
-  public async copyChildrenTo(node: Node) {}
+  public async copyChildrenTo(node: Node) {
+    const subtrees = await this.api.getSubTreesOrNull(this, this.document.nodes) as any;
+    if (subtrees) {
+      await this.api.copySubTrees(subtrees.children, node.id, node.document.id, true);
+    }
+  }
 
-  public async copyNodeUnder(node: Node) {}
+  public async copyNodeUnder(node: Node) {
+    const subtrees = await this.api.getSubTreesOrNull(this, this.document.nodes) as any;
+    if (subtrees) {
+      await this.api.copySubTrees([subtrees], node.id, node.document.id, true);
+    }
+  }
 
   public async createChild(content: string, index = 0) {
     const result = await this.api.createNewEntry(this.document.id, this.id, content, index);

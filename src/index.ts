@@ -49,7 +49,7 @@ export class DynalistApi{
         return document as any;
     }
     
-    public getSubTreesOrNull(item: any, nodes: any[], includeItemTest = (_: any) => true) {
+    public getSubTreesOrNull(item: DynalistNode, nodes: DynalistNode[], includeItemTest = (_: DynalistNode) => true) {
         const subTrees: any[] = [];
         if (item.children) {
             const childrenItems = nodes.filter(node => item.children.includes(node.id))

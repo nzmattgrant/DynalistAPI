@@ -36,7 +36,8 @@ export interface DynalistNode {
     note: string;
     created: number, // timestamp in milliseconds of the creation time
     modified: number, // timestamp in milliseconds of the last modified time
-    children: string[]
+    children: string[],
+    checked: boolean
 }
 
 export interface DynalistDocument {
@@ -44,4 +45,11 @@ export interface DynalistDocument {
     title: string;
     version: number
     nodes: DynalistNode[]
+}
+
+export interface DynalistNodeTree {
+    id: string,
+    content: string,
+    checked: boolean,
+    children: DynalistNodeTree[]
 }
