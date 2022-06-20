@@ -1,11 +1,11 @@
 import { DynalistApi } from './index';
-import { Document } from './document';
+import { ExtendedDynalistDocument } from './document';
 import { DynalistNode } from './types';
 
-export class Node implements DynalistNode {
+export class ExtendedDynalistNode implements DynalistNode {
   public id: string;
   private api: DynalistApi;
-  private document: Document;
+  private document: ExtendedDynalistDocument;
 
   //dynalist api properties
   public content: string = '';
@@ -13,9 +13,13 @@ export class Node implements DynalistNode {
   public created: number = -1;
   public modified: number = -1;
   public children: string[] = [];
-  public checked: boolean = false;
+  public checked?: boolean = false;
+  public checkbox?: boolean;
+  public color?: number;
+  public heading?: number;
+  public collapsed?: boolean;
 
-  constructor(id: string, document: Document, api: DynalistApi) {
+  constructor(id: string, document: ExtendedDynalistDocument, api: DynalistApi) {
     this.id = id;
     this.api = api;
     this.document = document;
@@ -28,7 +32,11 @@ export class Node implements DynalistNode {
     this.created = -1;
     this.modified = -1;
     this.children = [];
-    this.checked = false;
+    this.checked = undefined;
+    this.checkbox = undefined;
+    this.color = undefined;
+    this.heading = undefined;
+    this.collapsed = undefined;
   }
 
   public async loadCurrentData() {
@@ -43,6 +51,10 @@ export class Node implements DynalistNode {
     this.modified = dynalistNode.modified;
     this.children = dynalistNode.children;
     this.checked = dynalistNode.checked;
+    this.checkbox = dynalistNode.checkbox;
+    this.color = dynalistNode.color;
+    this.heading = dynalistNode.heading;
+    this.collapsed = dynalistNode.collapsed;
   }
 
   private readDataFromDocument() {
@@ -62,7 +74,7 @@ export class Node implements DynalistNode {
     this.clearData();
   }
 
-  public async moveChildrenTo(node: Node) {
+  public async moveChildrenTo(node: ExtendedDynalistNode) {
     const subtrees = this.api.getSubTreesOrNull(this, this.document.nodes);
     if (subtrees) {
       await this.api.copySubTrees(subtrees.children, node.id, node.document.id, true);
@@ -70,7 +82,7 @@ export class Node implements DynalistNode {
     }
   }
 
-  public async moveNodeUnder(node: Node): Promise<void> {
+  public async moveNodeUnder(node: ExtendedDynalistNode): Promise<void> {
     if(this.document.id === node.document.id){
       await this.api.moveNodes([node], this.document.id, this.id);
       return;
@@ -83,14 +95,14 @@ export class Node implements DynalistNode {
     return;
   }
 
-  public async copyChildrenTo(node: Node) {
+  public async copyChildrenTo(node: ExtendedDynalistNode) {
     const subtrees = await this.api.getSubTreesOrNull(this, this.document.nodes) as any;
     if (subtrees) {
       await this.api.copySubTrees(subtrees.children, node.id, node.document.id, true);
     }
   }
 
-  public async copyNodeUnder(node: Node) {
+  public async copyNodeUnder(node: ExtendedDynalistNode) {
     const subtrees = await this.api.getSubTreesOrNull(this, this.document.nodes) as any;
     if (subtrees) {
       await this.api.copySubTrees([subtrees], node.id, node.document.id, true);
@@ -102,7 +114,7 @@ export class Node implements DynalistNode {
     var newIds = result.new_node_ids || [];
     await this.loadCurrentData(); //refresh
     const newDynalistNode = this.document.nodes.find((n) => newIds.includes(n.id)) as DynalistNode;
-    const newNode = new Node(newDynalistNode.id, this.document, this.api);
+    const newNode = new ExtendedDynalistNode(newDynalistNode.id, this.document, this.api);
     newNode.fillDataFromDynalistNode(newDynalistNode);
     return newNode;
   }

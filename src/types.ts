@@ -37,7 +37,11 @@ export interface DynalistNode {
     created: number, // timestamp in milliseconds of the creation time
     modified: number, // timestamp in milliseconds of the last modified time
     children: string[],
-    checked: boolean
+    checkbox?: boolean,
+    checked?: boolean,
+    color?: number,// color label, 0~6
+    heading?: number,// heading level, 0~3
+    collapsed?: boolean
 }
 
 export interface DynalistDocument {
@@ -52,4 +56,24 @@ export interface DynalistNodeTree {
     content: string,
     checked: boolean,
     children: DynalistNodeTree[]
+}
+
+export interface FileLevelChangeParameters {
+    
+    action: string,//edit/move/create
+    type: string,//document/folder
+    file_id: string,
+    title?: string,
+    parent_id?: string,
+    index?: number
+}
+
+export interface DocumentLevelChangeParameters {
+    action: string,//insert/edit/move/delete
+    node_id?: string, 
+    parent_id?: string,
+    index?: number
+    content?: string,
+    note?: string,
+    checked?: string,
 }

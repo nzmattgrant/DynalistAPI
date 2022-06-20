@@ -1,8 +1,8 @@
 import { DynalistApi } from './index';
-import { Node } from './node';
+import { ExtendedDynalistNode } from './node';
 import { DynalistDocument, DynalistNode, DynalistNodeTree } from './types';
 
-export class Document implements DynalistDocument {
+export class ExtendedDynalistDocument implements DynalistDocument {
 
     public id: string;
     private api: DynalistApi;
@@ -30,23 +30,23 @@ export class Document implements DynalistDocument {
         this.nodes = document.nodes;        
     }
 
-    public async deleteNode(node: Node) {
+    public async deleteNode(node: ExtendedDynalistNode) {
         await this.api.deleteNodes(this.id, [node]);
         this.nodes = this.nodes.filter(n => n.id !== node.id);
     }
 
-    public async getNodeById(id: string, reloadData = false) : Promise<Node | null> {
+    public async getNodeById(id: string, reloadData = false) : Promise<ExtendedDynalistNode | null> {
         if(!this.nodes.find(n => n.id === id)){
             return null;
         }
-        const node = new Node(id, this, this.api);
+        const node = new ExtendedDynalistNode(id, this, this.api);
         if(reloadData){
             await node.loadCurrentData();
         }
         return node;
     }
 
-    public async getNodeByQuery(query: (node: DynalistNode) => boolean, reloadData = false) : Promise<Node | null> {
+    public async getNodeByQuery(query: (node: DynalistNode) => boolean, reloadData = false) : Promise<ExtendedDynalistNode | null> {
         const node = this.nodes.find(query);
         if(!node){
             return null;
