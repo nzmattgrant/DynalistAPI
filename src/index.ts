@@ -6,6 +6,13 @@ import {
   DynalistNode,
   DocumentLevelChangeParameters,
   DynalistNodeTree,
+  CheckForUpdatesResponse,
+  UploadFileResponse,
+  FileListResponse,
+  GetPreferenceResponse,
+  FileLevelChangeParameters,
+  FileUpdateResponse,
+  NodeCreationOptions,
 } from './types';
 import { ExtendedDynalistDocument } from './document';
 import { ExtendedDynalistNode } from './node';
@@ -26,15 +33,72 @@ export class DynalistApi {
           url: url,
           json: json,
         },
-        (error, res, body) => {
+        (error: any, res: any, body: any) => {
           if (!error && res.statusCode == 200) {
-            resolve(body);
+            // Check for application-level errors from Dynalist (e.g. _code: "InvalidToken")
+            if (body && body._code && body._code !== 'Ok') {
+              reject(new Error(`Dynalist API Error: ${body._code} - ${body._msg}`));
+            } else {
+              resolve(body);
+            }
           } else {
-            reject(error);
+            reject(error || new Error(`HTTP Error: ${res ? res.statusCode : 'Unknown'}`));
           }
         }
       );
     });
+  }
+
+  public async updateFile(changes: FileLevelChangeParameters[]): Promise<FileUpdateResponse> {
+    return (await this.getPostResponse('https://dynalist.io/api/v1/file/edit', {
+      token: this.dynalistApiKey,
+      changes: changes,
+    })) as FileUpdateResponse;
+  }
+
+  public async createFile(
+    parentId: string,
+    type: 'document' | 'folder',
+    title: string,
+    index = 0
+  ) {
+    return await this.updateFile([
+      {
+        action: 'create',
+        type: type,
+        parent_id: parentId,
+        index: index,
+        title: title,
+      },
+    ]);
+  }
+
+  public async editFile(fileId: string, type: 'document' | 'folder', title: string) {
+    return await this.updateFile([
+      {
+        action: 'edit',
+        type: type,
+        file_id: fileId,
+        title: title,
+      },
+    ]);
+  }
+
+  public async moveFile(
+    fileId: string,
+    type: 'document' | 'folder',
+    parentId: string,
+    index: number
+  ) {
+    return await this.updateFile([
+      {
+        action: 'move',
+        type: type,
+        file_id: fileId,
+        parent_id: parentId,
+        index: index,
+      },
+    ]);
   }
 
   public async updateDocument(
@@ -248,11 +312,33 @@ export class DynalistApi {
     await this.updateDocument(documentId, changes);
   }
 
+  public async editNode(
+    documentId: string,
+    nodeId: string,
+    changes: {
+      content?: string;
+      note?: string;
+      checked?: boolean;
+      checkbox?: boolean;
+      heading?: number;
+      color?: number;
+    }
+  ) {
+    return await this.updateDocument(documentId, [
+      {
+        action: 'edit',
+        node_id: nodeId,
+        ...changes,
+      },
+    ]);
+  }
+
   public async createNewEntry(
     fileId: string,
     parentId: string,
     content: string,
-    index = 0
+    index = 0,
+    options: NodeCreationOptions = {}
   ): Promise<DocumentUpdateResponse> {
     return await this.updateDocument(fileId, [
       {
@@ -260,8 +346,37 @@ export class DynalistApi {
         parent_id: parentId,
         index: index,
         content: content,
+        ...options,
       },
     ]);
+  }
+
+  public async createNodes(
+    documentId: string,
+    parentId: string,
+    nodes: { content: string; index?: number; options?: NodeCreationOptions }[]
+  ): Promise<DocumentUpdateResponse> {
+    let currentAutoIndex = 0;
+    
+    // Determine starting index if strict ordering is implied by the first element and none provided
+    if (nodes.length > 0 && nodes[0].index === undefined) {
+         // If we had a way to fetch the parent's current child count easily we would, 
+         // but '0' or '-1' (end) are common defaults. 
+         // Here we rely on user providing index or defaulting to 0 for the batch.
+    }
+
+    const changes = nodes.map((node) => {
+      const idx = node.index !== undefined ? node.index : currentAutoIndex++;
+      return {
+        action: 'insert',
+        parent_id: parentId,
+        index: idx,
+        content: node.content,
+        ...node.options,
+      };
+    });
+
+    return await this.updateDocument(documentId, changes as any);
   }
 
   public async filterNodesByContent(document: any, filterString: string) {
@@ -281,8 +396,45 @@ export class DynalistApi {
     return await this.getPostResponse('https://dynalist.io/api/v1/inbox/add', parameters as object);
   }
 
-  public async listFiles() {
-    return await this.getPostResponse('https://dynalist.io/api/v1/file/list', { token: this.dynalistApiKey });
+  public async listFiles(): Promise<FileListResponse> {
+    return (await this.getPostResponse('https://dynalist.io/api/v1/file/list', {
+      token: this.dynalistApiKey,
+    })) as FileListResponse;
+  }
+
+  public async checkForUpdates(fileIds: string[]): Promise<CheckForUpdatesResponse> {
+    return (await this.getPostResponse('https://dynalist.io/api/v1/doc/check_for_updates', {
+      token: this.dynalistApiKey,
+      file_ids: fileIds,
+    })) as CheckForUpdatesResponse;
+  }
+
+  public async uploadFile(
+    filename: string,
+    contentType: string,
+    data: string
+  ): Promise<UploadFileResponse> {
+    return (await this.getPostResponse('https://dynalist.io/api/v1/upload', {
+      token: this.dynalistApiKey,
+      filename: filename,
+      content_type: contentType,
+      data: data,
+    })) as UploadFileResponse;
+  }
+
+  public async getPreference(key: string): Promise<GetPreferenceResponse> {
+    return (await this.getPostResponse('https://dynalist.io/api/v1/pref/get', {
+      token: this.dynalistApiKey,
+      key: key,
+    })) as GetPreferenceResponse;
+  }
+
+  public async setPreference(key: string, value: string): Promise<void> {
+    await this.getPostResponse('https://dynalist.io/api/v1/pref/set', {
+      token: this.dynalistApiKey,
+      key: key,
+      value: value,
+    });
   }
 
   public async getDocument(id: string): Promise<ExtendedDynalistDocument> {

@@ -3,10 +3,10 @@ export interface SendToInboxParameters {
     content?: string,
     index?: number,
     note?: string, 
-    checked?: string, 
-    checkbox?: string, 
-    heading?: string,
-    color?: string
+    checked?: boolean, 
+    checkbox?: boolean, 
+    heading?: number,
+    color?: number
 }
 
 export interface CreateNodeParameters {
@@ -30,6 +30,25 @@ export interface DocumentUpdateResponse {
     new_node_ids: string[]
 }
 
+export interface CheckForUpdatesResponse {
+    _code: string;
+    _msg: string;
+    versions: { [key: string]: number };
+}
+
+export interface UploadFileResponse {
+    _code: string;
+    _msg: string;
+    url: string;
+}
+
+export interface GetPreferenceResponse {
+    _code: string;
+    _msg: string;
+    key: string;
+    value: string;
+}
+
 export interface DynalistNode {
     id: string;
     content: string;
@@ -51,6 +70,37 @@ export interface DynalistDocument {
     nodes: DynalistNode[]
 }
 
+export interface DynalistFile {
+    id: string;
+    title: string;
+    type: 'document' | 'folder';
+    permission: number;
+    collapsed?: boolean;
+    children?: string[];
+}
+
+export interface FileListResponse {
+    _code: string;
+    _msg: string;
+    root_file_id: string;
+    files: DynalistFile[];
+}
+
+export interface FileUpdateResponse {
+    _code: string;
+    _msg: string;
+    results: boolean[];
+    created?: string[];
+}
+
+export interface NodeCreationOptions {
+    note?: string;
+    checked?: boolean;
+    checkbox?: boolean;
+    heading?: number;
+    color?: number;
+}
+
 export interface DynalistNodeTree {
     id: string,
     content: string,
@@ -62,7 +112,7 @@ export interface FileLevelChangeParameters {
     
     action: string,//edit/move/create
     type: string,//document/folder
-    file_id: string,
+    file_id?: string,
     title?: string,
     parent_id?: string,
     index?: number
@@ -75,5 +125,8 @@ export interface DocumentLevelChangeParameters {
     index?: number
     content?: string,
     note?: string,
-    checked?: string,
+    checked?: boolean,
+    checkbox?: boolean,
+    heading?: number,
+    color?: number,
 }
